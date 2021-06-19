@@ -1,0 +1,10 @@
+spring:
+  redis:
+    host: 127.0.0.1
+    port: 6379
+
+  datasource:
+    url:
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
