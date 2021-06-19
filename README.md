@@ -1,7 +1,5 @@
 # Redis 연습해보기
 <img src="https://user-images.githubusercontent.com/69130921/122641332-8cc81600-d13f-11eb-9a59-a4352fa3eafe.png">
-
-<br>
 <br>
 
 ## Redis 
