@@ -5,14 +5,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.test.annotation.Rollback;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -39,6 +35,55 @@ public class RedisTest {
         assertThat(username).isEqualTo("beomjun");
         assertThat(level).isEqualTo("1");
     }
+    
+    @Test
+    @DisplayName("list 테스트")
+    public void list() throws Exception{
+        //given
+        ListOperations<String, Object> list = redisTemplate.opsForList();
+        String key = "userList";
+
+        List<Object> expect = new ArrayList<>();
+        expect.add("user1");
+        expect.add("user2");
+        expect.add("user3");
+        expect.add("user4");
+
+        //when
+        list.rightPush(key, "user2");
+        list.rightPush(key, "user3");
+        list.rightPush(key, "user4");
+        list.leftPush(key, "user1");
+        List<Object> range = list.range(key, 0, 3);
+
+        //then
+        assertThat(range).usingRecursiveComparison().isEqualTo(expect);
+    }
+
+    @Test
+    @DisplayName("set 테스트")
+    public void set() throws Exception{
+        //given
+        SetOperations<String, Object> set = redisTemplate.opsForSet();
+        String key = "userSet";
+
+        Set<Object> expect = new HashSet<>();
+        expect.add("a");
+        expect.add("b");
+        expect.add("c");
+
+        //when
+        set.add(key, "a");
+        set.add(key, "a");
+        set.add(key, "b");
+        set.add(key, "b");
+        set.add(key, "c");
+        set.add(key, "c");
+        Set<Object> members = set.members(key);
+
+        //then
+        assertThat(members).usingRecursiveComparison().isEqualTo(expect);
+    }
 
     @Test
     @DisplayName("sorted set 테스트")
@@ -46,6 +91,14 @@ public class RedisTest {
         //given
         String key = "userRank";
         ZSetOperations<String, Object> zSet = redisTemplate.opsForZSet();
+
+        Set<Object> expect = new HashSet<>();
+        expect.add("a");
+        expect.add("b");
+        expect.add("c");
+        expect.add("d");
+        expect.add("e");
+        expect.add("f");
 
         //when
         zSet.add(key, "d", 4);
@@ -56,16 +109,29 @@ public class RedisTest {
         zSet.add(key, "e", 5);
         Set<Object> range = zSet.range(key, 0, 6);
 
-        Set<Object> expect = new HashSet<>();
-        expect.add("a");
-        expect.add("b");
-        expect.add("c");
-        expect.add("d");
-        expect.add("e");
-        expect.add("f");
-
         //then
         assertThat(range.size()).isEqualTo(6);
         assertThat(range).usingRecursiveComparison().isEqualTo(expect);
+    }
+
+    @Test
+    @DisplayName("hash 테스트")
+    public void hash() throws Exception{
+        //given
+        String key = "beomjun";
+        HashOperations<String, Object, Object> hash = redisTemplate.opsForHash();
+
+
+        //when
+        hash.put(key, "level", "1");
+        hash.put(key, "age", "26");
+        hash.put(key, "job", "sever");
+        Map<Object, Object> entries = hash.entries(key);
+
+        //then
+        assertThat(entries.get("level")).isEqualTo("1");
+        assertThat(entries.get("age")).isEqualTo("26");
+        assertThat(entries.get("job")).isEqualTo("sever");
+
     }
 }

@@ -10,8 +10,4 @@ import org.springframework.stereotype.Repository;
 public class UserRedisRepository {
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public void test() {
-        ZSetOperations<String, Object> zSet = redisTemplate.opsForZSet();
-
-    }
 }
