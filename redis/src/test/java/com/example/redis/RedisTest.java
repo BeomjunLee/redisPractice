@@ -1,13 +1,14 @@
 package com.example.redis;
 
-import org.assertj.core.api.Assertions;
+import com.example.redis.user.User;
+import com.example.redis.user.UserRedisRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.*;
-import org.springframework.test.annotation.Rollback;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
@@ -17,6 +18,8 @@ public class RedisTest {
 
     @Autowired
     RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    UserRedisRepository userRedisRepository;
 
     @Test
     @DisplayName("string 테스트")
@@ -133,5 +136,27 @@ public class RedisTest {
         assertThat(entries.get("age")).isEqualTo("26");
         assertThat(entries.get("job")).isEqualTo("sever");
 
+    }
+
+    @Test
+    @DisplayName("jpa redis 테스트")
+    public void jpaRedisTest() throws Exception{
+        //given
+        LocalDateTime refreshTime = LocalDateTime.of(2021, 5, 20, 0, 0);
+        User user = User.builder()
+                .id("beomjun")
+                .level(5)
+                .refreshTime(refreshTime)
+                .build();
+        userRedisRepository.save(user);
+
+        //when
+        User findUser = userRedisRepository.findById(user.getId()).get();
+        findUser.refresh(10, LocalDateTime.of(2021, 6, 20, 0, 0));
+        userRedisRepository.save(findUser);
+
+        //then
+        User refreshUser = userRedisRepository.findById(user.getId()).get();
+        assertThat(refreshUser.getLevel()).isEqualTo(10);
     }
 }
