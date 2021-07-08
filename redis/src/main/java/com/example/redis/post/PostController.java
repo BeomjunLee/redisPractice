@@ -16,7 +16,6 @@ public class PostController {
 
     private final PostService postService;
 
-
     @PostMapping
     public ResponsePost writePost(@RequestBody RequestPost requestPost) {
         return postService.savePost(requestPost);
@@ -26,11 +25,6 @@ public class PostController {
     @GetMapping("/{id}")
     public ResponsePost getPost(@PathVariable Long id) {
         return postService.getPost(id);
-    }
-
-    @GetMapping
-    public List<ResponsePost> getPosts() {
-        return postService.getPosts();
     }
 
     @CachePut(key = "#id", value = "post")
@@ -49,6 +43,11 @@ public class PostController {
                 .id(deletedId)
                 .message("삭제 성공")
                 .build();
+    }
+
+    @GetMapping
+    public List<ResponsePost> getPosts() {
+        return postService.getPosts();
     }
 
     @Getter

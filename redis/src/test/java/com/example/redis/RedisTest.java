@@ -1,5 +1,6 @@
 package com.example.redis;
 
+import com.example.redis.post.Post;
 import com.example.redis.user.User;
 import com.example.redis.user.UserRedisRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -58,6 +59,38 @@ public class RedisTest {
         list.rightPush(key, "user4");
         list.leftPush(key, "user1");
         List<Object> range = list.range(key, 0, 3);
+
+        //then
+        assertThat(range).usingRecursiveComparison().isEqualTo(expect);
+    }
+
+
+    @Test
+    @DisplayName("list object 저장 테스트")
+    public void listObject() throws Exception{
+        //given
+        ListOperations<String, Object> list = redisTemplate.opsForList();
+        String key = "list";
+
+        List<Object> expect = new ArrayList<>();
+        for (int i = 1; i <= 5; i++) {
+            Post post = Post.builder()
+                    .id((long) i)
+                    .title("제목"+i)
+                    .content("내용"+i).build();
+            expect.add(post);
+        }
+
+        //when
+        for (int i = 1; i <= 5; i++) {
+            Post post = Post.builder()
+                    .id((long) i)
+                    .title("제목"+i)
+                    .content("내용"+i).build();
+            expect.add(post);
+//            list.rightPush(key, post);
+        }
+        List<Object> range = list.range(key, 0, 4);
 
         //then
         assertThat(range).usingRecursiveComparison().isEqualTo(expect);
